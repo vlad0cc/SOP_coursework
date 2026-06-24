@@ -1,0 +1,91 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: document-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  grpc-analytics-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: grpc-analytics-server
+    container_name: document-grpc-analytics-server
+    ports:
+      - "8083:8083"
+      - "9090:9090"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  grpc-enrichment-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: grpc-enrichment-client
+    container_name: document-grpc-enrichment-client
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      GRPC_CLIENT_ANALYTICS_SERVER_HOST: grpc-analytics-server
+      GRPC_CLIENT_ANALYTICS_SERVER_PORT: 9090
+    ports:
+      - "8082:8082"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      grpc-analytics-server:
+        condition: service_started
+
+  audit-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: audit-service
+    container_name: document-audit-service
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8081:8081"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: notification-service
+    container_name: document-notification-service
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8084:8084"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  document-rest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: document-rest
+    container_name: document-rest
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+    ports:
+      - "8080:8080"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+

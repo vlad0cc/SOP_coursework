@@ -1,0 +1,89 @@
+# =============================================================================
+# GraphQL-контракт для Document Flow API
+# =============================================================================
+
+type Employee {
+    id: ID!
+    fullName: String!
+    position: String!
+    documentsCount: Int!
+    documents(page: Int = 0, size: Int = 20): DocumentConnection!
+}
+
+type Document {
+    id: ID!
+    title: String!
+    documentNumber: String!
+    description: String
+    status: String!
+    auditComment: String
+    signature: String
+    sender: Employee!
+    recipient: Employee!
+}
+
+type DocumentConnection {
+    content: [Document!]!
+    pageInfo: PageInfo!
+    totalElements: Int!
+}
+
+type EmployeeConnection {
+    content: [Employee!]!
+    pageInfo: PageInfo!
+    totalElements: Int!
+}
+
+type PageInfo {
+    pageNumber: Int!
+    pageSize: Int!
+    totalPages: Int!
+    last: Boolean!
+}
+
+input CreateDocumentInput {
+    title: String!
+    documentNumber: String!
+    senderId: ID!
+    recipientId: ID!
+    description: String
+}
+
+input UpdateDocumentInput {
+    title: String!
+    documentNumber: String!
+    description: String
+}
+
+input CreateEmployeeInput {
+    fullName: String!
+    position: String!
+}
+
+input UpdateEmployeeInput {
+    fullName: String!
+    position: String!
+}
+
+input DocumentFilter {
+    senderId: ID
+    recipientId: ID
+    status: String
+    titleSearch: String
+}
+
+type Query {
+    document(id: ID!): Document
+    documents(filter: DocumentFilter, page: Int = 0, size: Int = 20): DocumentConnection!
+    employee(id: ID!): Employee
+    employees(page: Int = 0, size: Int = 20): EmployeeConnection!
+}
+
+type Mutation {
+    createDocument(input: CreateDocumentInput!): Document!
+    updateDocument(id: ID!, input: UpdateDocumentInput!): Document!
+    deleteDocument(id: ID!): Boolean!
+    createEmployee(input: CreateEmployeeInput!): Employee!
+    updateEmployee(id: ID!, input: UpdateEmployeeInput!): Employee!
+    deleteEmployee(id: ID!): Boolean!
+}

@@ -1,0 +1,6 @@
+.git
+.idea
+.agents
+.codex
+**/target
+**/.DS_Store

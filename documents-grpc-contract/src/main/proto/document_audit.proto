@@ -1,0 +1,31 @@
+// Контракт gRPC-сервиса аудита документов
+
+syntax = "proto3";
+
+option java_package = "edu.rutmiit.demo.grpc";
+option java_multiple_files = true;
+
+package documentaudit;
+
+service DocumentAnalytics {
+
+    // Проверяет документ и возвращает результат аудита
+    rpc AnalyzeDocument (AnalyzeDocumentRequest) returns (DocumentAnalysisResponse);
+}
+
+message AnalyzeDocumentRequest {
+    int64  document_id          = 1;
+    string title                = 2;
+    string document_number      = 3;
+    int64  sender_id            = 4;
+    string sender_name          = 5;
+    int64  recipient_id         = 6;
+    string recipient_name       = 7;
+}
+
+message DocumentAnalysisResponse {
+    int64  document_id          = 1;
+    bool   approved             = 2;
+    string status               = 3;
+    string reason               = 4;
+}
