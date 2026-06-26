@@ -13,7 +13,7 @@ services:
 
   grpc-analytics-server:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
       args:
         MODULE: grpc-analytics-server
@@ -27,7 +27,7 @@ services:
 
   grpc-enrichment-client:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
       args:
         MODULE: grpc-enrichment-client
@@ -46,7 +46,7 @@ services:
 
   audit-service:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
       args:
         MODULE: audit-service
@@ -61,7 +61,7 @@ services:
 
   notification-service:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
       args:
         MODULE: notification-service
@@ -76,7 +76,7 @@ services:
 
   document-rest:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
       args:
         MODULE: document-rest
@@ -89,3 +89,13 @@ services:
       rabbitmq:
         condition: service_healthy
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: document-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      document-rest:
+        condition: service_started
